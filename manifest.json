@@ -1,0 +1,20 @@
+{
+  "name": "AniStub",
+  "short_name": "AniStub",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#141217",
+  "theme_color": "#1c1920",
+  "icons": [
+    {
+      "src": "icons/AniStub-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/AniStub-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

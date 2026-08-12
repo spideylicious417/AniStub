@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AniStub</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+
+    <div id="top-bar">
+      <header id="app-header">
+        <div class="logo">AniStub</div>
+        <div class="header-actions">
+          <button id="search-toggle-btn" class="icon-btn plain" aria-label="Search">🔍</button>
+          <button id="notif-btn" class="icon-btn plain" aria-label="Notifications">🔔</button>
+        </div>
+      </header>
+
+      <div id="search-bar-wrap" hidden>
+        <div class="search-pill">
+          <span class="search-icon">🔍</span>
+          <input id="discover-search" placeholder="Search anime" autocomplete="off">
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== HOME ===== -->
+    <div id="home-content">
+
+      <section id="hero" class="hero">
+        <div id="hero-track" class="hero-track"></div>
+        <div id="hero-dots" class="hero-dots"></div>
+      </section>
+
+      <section class="carousel-section">
+        <div class="section-header">
+          <h2>Top Airing</h2>
+          <button class="see-all-btn" data-target="all-anime-section">See all</button>
+        </div>
+        <div id="top-airing-row" class="carousel-row"></div>
+      </section>
+
+      <section class="carousel-section">
+        <div class="section-header">
+          <h2>New Episode Releases</h2>
+          <button class="see-all-btn" data-action="new-episodes">See all</button>
+        </div>
+        <div id="new-episodes-row" class="carousel-row"></div>
+      </section>
+
+      <section id="all-anime-section">
+        <div class="section-header">
+          <h2>All Anime</h2>
+        </div>
+        <div id="anime-grid" class="anime-grid"></div>
+      </section>
+
+    </div>
+
+    <!-- ===== SCHEDULE TAB ===== -->
+    <section id="schedule-screen" hidden>
+      <div class="section-header">
+        <h2>Airing Today</h2>
+      </div>
+      <div id="schedule-container"></div>
+    </section>
+
+    <!-- ===== MY LIST TAB ===== -->
+    <section id="mylist-screen" hidden>
+      <div class="section-header">
+        <h2>My List</h2>
+        <button id="mylist-new-list-btn" class="btn-primary small">+ New list</button>
+      </div>
+      <div id="mylist-container"></div>
+    </section>
+
+    <!-- ===== SEARCH RESULTS ===== -->
+    <section id="search-screen" hidden>
+      <div id="search-screen-header" class="subpage-header">
+        <button id="search-back-btn" class="icon-btn plain" aria-label="Back">←</button>
+        <h1 id="search-screen-title">Results</h1>
+      </div>
+      <div id="search-grid" class="anime-grid"></div>
+    </section>
+
+    <!-- ===== NEW EPISODE RELEASES (full list) ===== -->
+    <section id="new-episodes-screen" hidden>
+      <div id="new-episodes-screen-header" class="subpage-header">
+        <button id="new-episodes-back-btn" class="icon-btn plain" aria-label="Back">←</button>
+        <h1>New Episode Releases</h1>
+      </div>
+      <div id="new-episodes-grid" class="anime-grid"></div>
+    </section>
+
+    <!-- Items inside one list -->
+    <section id="items-screen" hidden>
+      <div id="items-header">
+        <button id="back-btn" class="icon-btn plain" aria-label="Back">←</button>
+        <h1 id="current-list-title"></h1>
+        <div class="items-header-actions">
+          <button id="category-btn" class="icon-btn plain" aria-label="Categories">🏷</button>
+          <button id="history-btn" class="icon-btn plain" aria-label="Watched history">🕐</button>
+        </div>
+      </div>
+
+      <div class="progress-section">
+        <div id="progress-ring" class="progress-ring"></div>
+        <div class="progress-info">
+          <h2>Progress made</h2>
+          <p id="progress-fraction"></p>
+        </div>
+      </div>
+
+      <div id="category-chips" class="category-chips" hidden></div>
+      <div id="items-container"></div>
+    </section>
+
+    <footer id="tab-bar">
+      <button class="nav-item active" data-tab="home">
+        <span class="nav-icon">🏠</span><span class="nav-label">Home</span>
+      </button>
+      <button class="nav-item" data-tab="schedule">
+        <span class="nav-icon">📅</span><span class="nav-label">Schedule</span>
+      </button>
+      <button class="nav-item" data-tab="mylist">
+        <span class="nav-icon">🔖</span><span class="nav-label">My List</span>
+      </button>
+      <button id="profile-btn" class="nav-item" data-tab="profile">
+        <span class="nav-icon">👤</span><span class="nav-label">Profile</span>
+      </button>
+    </footer>
+
+    <div id="overlay" class="overlay" hidden></div>
+
+    <!-- New List bottom sheet -->
+    <div id="new-list-modal" class="sheet" hidden>
+      <div class="sheet-handle"></div>
+      <div class="sheet-top-row">
+        <span class="admit-one">ADMIT ONE</span>
+        <button id="close-modal-btn" class="icon-btn plain" aria-label="Close">✕</button>
+      </div>
+      <h2 class="sheet-title">New list</h2>
+
+      <label class="field-label">Name</label>
+      <div class="input-with-icon">
+        <span class="input-icon">📺</span>
+        <input id="list-name-input" placeholder="e.g. Winter Season Watchlist" autocomplete="off">
+      </div>
+
+      <label class="field-label">Description (optional)</label>
+      <textarea id="list-desc-input" placeholder="What's this list for?" rows="2"></textarea>
+
+      <label class="field-label">Color</label>
+      <div id="color-picker" class="color-picker"></div>
+
+      <div class="sheet-actions">
+        <button id="cancel-list-btn" class="btn-outline">Cancel</button>
+        <button id="create-list-btn" class="btn-primary">Create list</button>
+      </div>
+
+      <div class="sheet-divider"></div>
+      <p class="field-label">Your lists</p>
+      <div id="modal-lists-preview"></div>
+    </div>
+
+    <!-- Choose-list bottom sheet (for adding an anime) -->
+    <div id="choose-list-modal" class="sheet" hidden>
+      <div class="sheet-handle"></div>
+      <div class="sheet-top-row">
+        <span class="admit-one">ADMIT ONE</span>
+        <button id="close-choose-btn" class="icon-btn plain" aria-label="Close">✕</button>
+      </div>
+      <h2 class="sheet-title" id="choose-list-title">Add to which list?</h2>
+
+      <div id="choose-list-options"></div>
+
+      <button id="choose-new-list-btn" class="btn-outline" style="width:100%; margin-top: 14px;">+ New list</button>
+    </div>
+
+    <!-- Confirm delete sheet -->
+    <div id="confirm-delete-modal" class="sheet" hidden>
+      <div class="sheet-handle"></div>
+      <div class="confirm-delete-preview">
+        <div id="confirm-delete-poster" class="confirm-delete-poster"></div>
+        <div id="confirm-delete-title" class="confirm-delete-title"></div>
+      </div>
+      <h2 class="sheet-title" style="text-align:center; margin-bottom: 20px;">Remove this stub?</h2>
+      <div class="sheet-actions">
+        <button id="cancel-delete-btn" class="btn-outline">Cancel</button>
+        <button id="confirm-delete-btn" class="btn-primary" style="background:#b5222b;">Yes, remove</button>
+      </div>
+    </div>
+
+    <!-- Manage categories sheet -->
+    <div id="category-modal" class="sheet" hidden>
+      <div class="sheet-handle"></div>
+      <div class="sheet-top-row">
+        <span class="admit-one">CATEGORIES</span>
+        <button id="close-category-btn" class="icon-btn plain" aria-label="Close">✕</button>
+      </div>
+      <h2 class="sheet-title" id="category-list-title">Organize your stubs</h2>
+
+      <div class="input-with-icon">
+        <span class="input-icon">🏷</span>
+        <input id="category-name-input" placeholder="e.g. Winter 2026" autocomplete="off">
+      </div>
+      <button id="add-category-btn" class="btn-primary" style="width:100%; margin-top:10px;">+ Add category</button>
+
+      <div class="sheet-divider"></div>
+      <div id="category-list-container"></div>
+    </div>
+
+    <!-- Choose category sheet (when adding an anime into a categorized list) -->
+    <div id="choose-category-modal" class="sheet" hidden>
+      <div class="sheet-handle"></div>
+      <div class="sheet-top-row">
+        <span class="admit-one">ADMIT ONE</span>
+        <button id="close-choose-category-btn" class="icon-btn plain" aria-label="Close">✕</button>
+      </div>
+      <h2 class="sheet-title">Which category?</h2>
+      <div id="choose-category-options"></div>
+    </div>
+
+    <!-- Profile panel (identity + shortcut into My List) -->
+    <div id="profile-panel" class="panel" hidden>
+      <div class="panel-header">
+        <div class="profile-id">
+          <div class="avatar">👤</div>
+          <div>
+            <div class="profile-name">You</div>
+            <div class="profile-handle">@anistub</div>
+          </div>
+        </div>
+        <button id="close-panel-btn" class="icon-btn plain" aria-label="Close">✕</button>
+      </div>
+
+      <button id="profile-mylist-shortcut-btn" class="profile-shortcut-card">
+        <div class="profile-shortcut-icon">🔖</div>
+        <div class="profile-shortcut-text">
+          <div class="title">My List</div>
+          <div class="sub" id="profile-mylist-count">View your lists</div>
+        </div>
+        <div class="profile-shortcut-chevron">›</div>
+      </button>
+    </div>
+
+    <!-- Watched history panel -->
+    <div id="history-panel" class="panel" hidden>
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <button id="history-back-btn" class="icon-btn plain" aria-label="Back" hidden>←</button>
+          <h3 id="history-panel-title">Watched</h3>
+        </div>
+        <button id="close-history-btn" class="icon-btn plain" aria-label="Close">✕</button>
+      </div>
+      <div id="history-chips" class="category-chips" hidden></div>
+      <div id="history-container"></div>
+    </div>
+
+    <!-- Notifications panel -->
+    <div id="notif-panel" class="panel" hidden>
+      <div class="panel-header">
+        <h3>Notifications</h3>
+        <button id="close-notif-btn" class="icon-btn plain" aria-label="Close">✕</button>
+      </div>
+      <p class="empty">You're all caught up — no notifications yet.</p>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
