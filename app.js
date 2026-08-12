@@ -18,6 +18,7 @@ let currentListId = null;
 let activeHistoryCategoryId = null;
 let pendingAddBtn = null;
 let pendingAnime = null; // anime waiting to be added once a list is chosen
+let currentTab = 'home';
 
 function escapeHtml(str) {
   const div = document.createElement('div');
@@ -294,19 +295,32 @@ function renderHeroCarousel(animeList) {
   });
 
   heroIndex = 0;
-  updateHeroPosition();
+  updateHeroPosition(false); // jump instantly to slide 0, no animation on load
   startHeroAutoplay();
 }
 
-function updateHeroPosition() {
-  heroTrack.style.transform = `translateX(-${heroIndex * 100}%)`;
+let heroScrollTimer;
+heroTrack.addEventListener('scroll', () => {
+  clearTimeout(heroScrollTimer);
+  heroScrollTimer = setTimeout(() => {
+    const newIndex = Math.round(heroTrack.scrollLeft / heroTrack.clientWidth);
+    if (newIndex !== heroIndex) {
+      heroIndex = newIndex;
+      heroDots.querySelectorAll('.hero-dot').forEach((d, i) => d.classList.toggle('active', i === heroIndex));
+    }
+    startHeroAutoplay(); // restart the timer from wherever the user left off
+  }, 120); // debounce until the swipe/snap settles
+});
+
+function updateHeroPosition(smooth = true) {
+  heroTrack.scrollTo({ left: heroIndex * heroTrack.clientWidth, behavior: smooth ? 'smooth' : 'auto' });
   heroDots.querySelectorAll('.hero-dot').forEach((d, i) => d.classList.toggle('active', i === heroIndex));
 }
 
 function goToHeroSlide(i) {
   heroIndex = i;
   updateHeroPosition();
-  startHeroAutoplay(); // restart the timer so it doesn't jump right after a manual pick
+  startHeroAutoplay();
 }
 
 function startHeroAutoplay() {
@@ -457,7 +471,6 @@ const overlay = document.getElementById('overlay');
 const newListModal = document.getElementById('new-list-modal');
 const profilePanel = document.getElementById('profile-panel');
 const historyPanel = document.getElementById('history-panel');
-const notifPanel = document.getElementById('notif-panel');
 const topBar = document.getElementById('top-bar');
 const homeContent = document.getElementById('home-content');
 const scheduleScreen = document.getElementById('schedule-screen');
@@ -472,10 +485,7 @@ const progressFraction = document.getElementById('progress-fraction');
 const historyContainer = document.getElementById('history-container');
 
 const profileBtn = document.getElementById('profile-btn');
-const searchToggleBtn = document.getElementById('search-toggle-btn');
 const searchBarWrap = document.getElementById('search-bar-wrap');
-const notifBtn = document.getElementById('notif-btn');
-const closeNotifBtn = document.getElementById('close-notif-btn');
 const navItems = document.querySelectorAll('.nav-item');
 const closeModalBtn = document.getElementById('close-modal-btn');
 const cancelListBtn = document.getElementById('cancel-list-btn');
@@ -523,8 +533,35 @@ const historyBackBtn = document.getElementById('history-back-btn');
 const historyPanelTitle = document.getElementById('history-panel-title');
 const historyChips = document.getElementById('history-chips');
 
+const navProfileAvatar = document.getElementById('nav-profile-avatar');
+
 let pendingCategoryListId = null;
 let pendingDeleteIndex = null;
+
+const PHOTO_KEY = 'anistub-profile-photo';
+const profileAvatar = document.getElementById('profile-avatar');
+const avatarEditBtn = document.getElementById('avatar-edit-btn');
+const avatarFileInput = document.getElementById('avatar-file-input');
+
+function renderAvatar() {
+  const photo = localStorage.getItem(PHOTO_KEY);
+  const inner = photo ? `<img src="${photo}" alt="Profile photo">` : '👤';
+  profileAvatar.innerHTML = inner;
+  navProfileAvatar.innerHTML = inner;
+}
+
+avatarEditBtn.addEventListener('click', () => avatarFileInput.click());
+
+avatarFileInput.addEventListener('change', () => {
+  const file = avatarFileInput.files[0];
+  if (!file || !file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    localStorage.setItem(PHOTO_KEY, reader.result);
+    renderAvatar();
+  };
+  reader.readAsDataURL(file);
+});
 
 // build color swatches
 LIST_COLORS.forEach((c, i) => {
@@ -545,35 +582,37 @@ LIST_COLORS.forEach((c, i) => {
 function applyState(state) {
   const view = (state && state.view) || 'home';
 
+  if (view === 'home' || view === 'schedule' || view === 'mylist') {
+    currentTab = view;
+  }
+
   overlay.hidden = true;
   newListModal.hidden = true;
   chooseListModal.hidden = true;
   profilePanel.hidden = true;
   historyPanel.hidden = true;
-  notifPanel.hidden = true;
   itemsScreen.hidden = true;
   topBar.hidden = false;
-  homeContent.hidden = false;
-  scheduleScreen.hidden = true; // any sheet/dialog reverts the view underneath to Home
-  mylistScreen.hidden = true;
+  homeContent.hidden = currentTab !== 'home';
+  scheduleScreen.hidden = currentTab !== 'schedule';
+  mylistScreen.hidden = currentTab !== 'mylist';
+  navItems.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === currentTab));
   confirmDeleteModal.hidden = true;
   categoryModal.hidden = true;
   chooseCategoryModal.hidden = true;
 
-  if (view === 'profile' || view === 'notif') {
+  if (view === 'profile') {
     overlay.hidden = false;
-    if (view === 'profile') {
-      profilePanel.hidden = false;
-      renderProfilePanel();
-    } else {
-      notifPanel.hidden = false;
-    }
+    profilePanel.hidden = false;
+    renderProfilePanel();
   } else if (view === 'mylist') {
     // A full-width tab screen (like Schedule), not a slide-in panel.
     homeContent.hidden = true;
     searchScreen.hidden = true;
     newEpisodesScreen.hidden = true;
+    searchBarWrap.hidden = true;
     mylistScreen.hidden = false;
+    currentTab = 'mylist'; 
     navItems.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === 'mylist'));
     renderMylistScreen();
   } else if (view === 'modal') {
@@ -630,7 +669,9 @@ function applyState(state) {
     renderHistory();
   }
 
-  if (view === 'home') setActiveTab('home');
+  if (view === 'home' || view === 'schedule') {
+    navItems.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === view));
+  }
 }
 
 function pushView(view, extra = {}) {
@@ -641,25 +682,15 @@ function pushView(view, extra = {}) {
 
 window.addEventListener('popstate', (e) => applyState(e.state));
 
-// ================== EVENTS ==================
-notifBtn.addEventListener('click', () => pushView('notif'));
-closeNotifBtn.addEventListener('click', () => history.back());
 
-searchToggleBtn.addEventListener('click', () => {
-  searchBarWrap.hidden = !searchBarWrap.hidden;
-  if (!searchBarWrap.hidden) {
-    discoverSearch.focus();
-  } else {
-    discoverSearch.value = '';
-    hideSearchScreen();
-  }
-});
 
 // ================== BOTTOM NAV TABS ==================
 function setActiveTab(tab) {
+  if (tab === 'home' || tab === 'schedule') currentTab = tab;
   navItems.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
   searchScreen.hidden = true;
   newEpisodesScreen.hidden = true;
+  searchBarWrap.hidden = tab !== 'home';
   if (tab === 'schedule') {
     homeContent.hidden = true;
     scheduleScreen.hidden = false;
@@ -675,8 +706,10 @@ navItems.forEach(btn => {
     const tab = btn.dataset.tab;
     if (tab === 'home') {
       setActiveTab('home');
+      history.replaceState({ view: 'home' }, '');
     } else if (tab === 'schedule') {
       setActiveTab('schedule');
+      history.replaceState({ view: 'schedule' }, '');
     } else if (tab === 'mylist') {
       pushView('mylist');
     } else if (tab === 'profile') {
@@ -784,6 +817,7 @@ function buildTicketCard(id) {
 
 // Profile panel: identity + a shortcut card that shows how many lists exist
 function renderProfilePanel() {
+  renderAvatar();
   const total = Object.keys(data).length;
   profileMylistCount.textContent = total === 0
     ? 'No lists yet'
@@ -1183,3 +1217,4 @@ history.replaceState({ view: 'home' }, '');
 fetchTopAnime();
 fetchNewEpisodes();
 fetchHeroAiring();
+renderAvatar();

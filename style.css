@@ -55,7 +55,7 @@ html, body {
 
 #search-bar-wrap {
   background: #141217;
-  padding: 12px 16px 4px;
+  padding: 12px 16px 14px;
 }
 
 /* ===== Bottom nav bar ===== */
@@ -697,14 +697,21 @@ html, body {
   display: flex;
   width: 100%;
   height: 100%;
-  transition: transform 0.6s ease;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
+.hero-track::-webkit-scrollbar { display: none; }
 
 .hero-slide {
   position: relative;
   flex: 0 0 100%;
   width: 100%;
   height: 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 
 .hero-media { width: 100%; height: 100%; }
@@ -911,3 +918,61 @@ html, body {
 .schedule-info { flex: 1; min-width: 0; }
 .schedule-info .name { font-size: 0.85rem; font-weight: 600; }
 .schedule-info .ep { font-size: 0.72rem; color: #a39d8f; margin-top: 2px; }
+
+/* ===== Avatar + photo upload ===== */
+.avatar-wrap {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+}
+.avatar {
+  width: 42px; height: 42px; border-radius: 50%; background: #201d24; border: 2px solid #b5222b;
+  display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+  overflow: hidden;
+}
+.avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.avatar-edit-btn {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #b5222b;
+  border: 2px solid #141217;
+  color: white;
+  font-size: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.avatar-edit-btn:active { transform: scale(0.9); }
+
+/* ===== Bottom nav profile avatar ===== */
+.nav-avatar-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.nav-avatar-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.nav-item .nav-avatar-icon {
+  filter: none !important;
+}
+.nav-item.active .nav-avatar-icon {
+  filter: none !important;
+}

@@ -11,21 +11,17 @@
   <div id="app">
 
     <div id="top-bar">
-      <header id="app-header">
-        <div class="logo">AniStub</div>
-        <div class="header-actions">
-          <button id="search-toggle-btn" class="icon-btn plain" aria-label="Search">🔍</button>
-          <button id="notif-btn" class="icon-btn plain" aria-label="Notifications">🔔</button>
-        </div>
-      </header>
+    <header id="app-header">
+      <div class="logo">AniStub</div>
+    </header>
 
-      <div id="search-bar-wrap" hidden>
-        <div class="search-pill">
-          <span class="search-icon">🔍</span>
-          <input id="discover-search" placeholder="Search anime" autocomplete="off">
-        </div>
+    <div id="search-bar-wrap">
+      <div class="search-pill">
+        <span class="search-icon">🔍</span>
+        <input id="discover-search" placeholder="Search anime" autocomplete="off">
       </div>
     </div>
+  </div>
 
     <!-- ===== HOME ===== -->
     <div id="home-content">
@@ -129,7 +125,8 @@
         <span class="nav-icon">🔖</span><span class="nav-label">My List</span>
       </button>
       <button id="profile-btn" class="nav-item" data-tab="profile">
-        <span class="nav-icon">👤</span><span class="nav-label">Profile</span>
+        <span class="nav-icon nav-avatar-icon" id="nav-profile-avatar">👤</span>
+        <span class="nav-label">Profile</span>
       </button>
     </footer>
 
@@ -228,7 +225,11 @@
     <div id="profile-panel" class="panel" hidden>
       <div class="panel-header">
         <div class="profile-id">
-          <div class="avatar">👤</div>
+          <div class="avatar-wrap">
+            <div id="profile-avatar" class="avatar">👤</div>
+            <button id="avatar-edit-btn" class="avatar-edit-btn" aria-label="Change photo">📷</button>
+            <input id="avatar-file-input" type="file" accept="image/*" hidden>
+          </div>
           <div>
             <div class="profile-name">You</div>
             <div class="profile-handle">@anistub</div>
@@ -258,15 +259,6 @@
       </div>
       <div id="history-chips" class="category-chips" hidden></div>
       <div id="history-container"></div>
-    </div>
-
-    <!-- Notifications panel -->
-    <div id="notif-panel" class="panel" hidden>
-      <div class="panel-header">
-        <h3>Notifications</h3>
-        <button id="close-notif-btn" class="icon-btn plain" aria-label="Close">✕</button>
-      </div>
-      <p class="empty">You're all caught up — no notifications yet.</p>
     </div>
 
   </div>
